@@ -7,11 +7,25 @@ const main = async () => {
   console.log("Contract deployed to:", waveContract.address);
   console.log("Contract deployed by:", owner.address);
 
+  let contractBalance = await hre.ethers.provider.getBalance(
+    waveContract.address
+  );
+  console.log(
+    "Contract balance:",
+    hre.ethers.utils.formatEther(contractBalance)
+  );
+
   let waveCount;
   waveCount = await waveContract.getTotalWaves();
 
   let waveTxn = await waveContract.wave("A message");
   await waveTxn.wait();
+
+  contractBalance = await hre.ethers.provider.getBalance(waveContract.address);
+  console.log(
+    "Contract balance:",
+    hre.ethers.utils.formatEther(contractBalance)
+  );
 
   waveCount = await waveContract.getTotalWaves();
 
@@ -20,7 +34,7 @@ const main = async () => {
 
   waveCount = await waveContract.getTotalWaves();
 
-  let allWaves = await waveContract.getAllWaves(); 
+  let allWaves = await waveContract.getAllWaves();
   console.log(allWaves);
 };
 
