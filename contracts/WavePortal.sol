@@ -7,6 +7,7 @@ import "hardhat/console.sol";
 
 contract WavePortal {
     uint256 totalWaves;
+    address public manager;
 
     uint256 private seed;
 
@@ -24,16 +25,12 @@ contract WavePortal {
 
     constructor() payable {
         console.log("Yo yo, I am a contract and I am smart");
+        manager = msg.sender;
 
         seed = (block.timestamp + block.difficulty) % 100;
     }
 
-    function wave(string memory _message) public {
-        require(
-            lastWavedAt[msg.sender] + 30 seconds < block.timestamp,
-            "Must wait 30 seconds before waving again."
-        );
-
+    function wave(string memory _message) public restricted wait30 {
         lastWavedAt[msg.sender] = block.timestamp;
 
         totalWaves += 1;
@@ -48,9 +45,6 @@ contract WavePortal {
         if (seed <= 50) {
             console.log("%s won!", msg.sender);
 
-            /*
-             * The same code we had before to send the prize.
-             */
             uint256 prizeAmount = 0.0001 ether;
             require(
                 prizeAmount <= address(this).balance,
@@ -70,5 +64,18 @@ contract WavePortal {
     function getTotalWaves() public view returns (uint256) {
         console.log("We have %d total waves!", totalWaves);
         return totalWaves;
+    }
+
+    modifier restricted() {
+        require(msg.sender != manager,"You should not me the manager");
+        _;
+    }
+
+    modifier wait30() {
+        require(
+            lastWavedAt[msg.sender] + 30 seconds < block.timestamp,
+            "Must wait 30 seconds before waving again."
+        );
+        _;
     }
 }
